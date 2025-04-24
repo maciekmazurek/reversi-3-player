@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "reversi-3-player", "reversi-3-player\reversi-3-player.csproj", "{9580F2A8-3C60-48FD-AD3F-6E447D64E40F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9580F2A8-3C60-48FD-AD3F-6E447D64E40F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9580F2A8-3C60-48FD-AD3F-6E447D64E40F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9580F2A8-3C60-48FD-AD3F-6E447D64E40F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9580F2A8-3C60-48FD-AD3F-6E447D64E40F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8AEB69D7-43B2-46EF-BDB3-1428C17A3FD7}
+	EndGlobalSection
+EndGlobal
