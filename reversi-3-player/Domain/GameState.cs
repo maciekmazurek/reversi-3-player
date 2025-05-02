@@ -114,20 +114,42 @@ namespace reversi_3_player.Domain
                 (1, -1) // lewo-dół
             };
 
+            // Tablica, w której zapisujemy dostawiane pionki, oraz pola "przejmowane" przez
+            // CurrentPlayera wraz z jego dostawieniem. Jeżeli pawnsPlaced[i, j] != null, to znaczy,
+            // że w miejscu (i, j) poprawnie dostawiono pionek generując ruch gracza CurrentPlayer,
+            // w którym zdobył on pionki przeciwników z pól znajdujących się w liście pawnsPlaced[i, j]
+            List<(int, int)>[,] pawnsPlaced = new List<(int, int)>[Constants.N, Constants.N];
+
             // Dla każdego pionka gracza CurrentPlayer znajdującego się obecnie na planszy
             // dostawiamy nowy pionek we wszystkich możliwych miejscach gwarantujących poprawny ruch.
             // W ten sposób generujemy wszystkie możliwe ruchy jakie może wykonać gracz CurrentPlayer
             // w obecnym stanie rozgrywki
-            foreach(var pawn in PawnCoordinates) 
+            foreach (var startPawn in PawnCoordinates) 
             {
                 foreach (var direction in directions)
                 {
-                    TryPlacePawnInDirection(pawn, direction);
+                    TryPlacePawnInDirection(startPawn, direction, pawnsPlaced);
+                }
+            }
+
+            for (int i = 0; i < Constants.N; i++) 
+            {
+                for (int j = 0; j < Constants.N; j++) 
+                {
+                    if (pawnsPlaced[i, j] != null)
+                    {
+                        // Dodajemy pole, na którym dostawiliśmy pionek do listy pól zdobytych
+                        pawnsPlaced[i, j].Add((i, j));
+
+                        // Generujemy stan-dziecko reprezentujący kolejny ruch CurrentPlayera, w którym
+                        // dostawia on pionka na polu (i, j)
+                        GenerateChild(pawnsPlaced[i, j]);
+                    }
                 }
             }
         }
 
-        private void TryPlacePawnInDirection((int x, int y) start, (int x, int y) direction)
+        private void TryPlacePawnInDirection((int x, int y) start, (int x, int y) direction, List<(int, int)>[,] pawnsPlaced)
         {
             // Potencjalne pola (x, y), na których możemy dostawić pionek szukamy zaczynając od pola
             // znajdującego się 2 miejsca w kierunku direction od pola start
@@ -158,6 +180,11 @@ namespace reversi_3_player.Domain
                             isValid = false;
                             break;
                         }
+
+                        // Jeżeli pole jest "dobre" to dodajemy je do listy pól "zdobytych" przez CurrentPlayera
+                        // po dostawieniu pionka (x, y)
+                        takenFields.Add((x_intermediate, y_intermediate));
+
                         x_intermediate -= direction.x;
                         y_intermediate -= direction.y;
                     }
@@ -165,17 +192,19 @@ namespace reversi_3_player.Domain
                     // Jeżeli pomiędzy nie było "złych" pól to stawiamy pionek na polu (x, y)
                     if (isValid)
                     {
-                        // Tworzymy listę pól, które "zdobył" CurrentPlayer po postawieniu pionka
-                        x_intermediate = x;
-                        y_intermediate = y;
-                        while ((x_intermediate, y_intermediate) != (start.x, start.y))
+                        // Jeżeli w żadnym z poprzednich wygenerowanych stanów-dzieci pionek nie był
+                        // stawiany na polu (x, y)
+                        if (pawnsPlaced[x, y] == null)
                         {
-                            takenFields.Add((x_intermediate, y_intermediate));
-                            x_intermediate -= direction.x;
-                            y_intermediate -= direction.y;
+                            pawnsPlaced[x, y] = takenFields;
                         }
-
-                        PlacePawn(takenFields);
+                        else // Jeżeli był stawiany
+                        {
+                            foreach(var takenField in takenFields)
+                            {
+                                pawnsPlaced[x, y].Add(takenField);
+                            }
+                        }
                     }
 
                     // Analizujemy tylko pierwsze puste pole. Jeżeli nie udało się postawić na nim pionka,
@@ -248,9 +277,9 @@ namespace reversi_3_player.Domain
         }
 
         /// <summary>
-        /// Imituje zachowanie dostawiania piona na planszy poprzez generowanie nowego stanu-dziecka
+        /// Generuje stan-dziecko obecnego stanu będące stanem rozgrywki po wykonaniu ruchu przez CurrentPlayera
         /// </summary>
-        private void PlacePawn(List<(int, int)> takenFields)
+        private void GenerateChild(List<(int, int)> takenFields)
         {
             int[,] newBoard = GenerateNewBoard(Board, takenFields, CurrentPlayer);
             int nextPlayer = CurrentPlayer == 3 ? 1 : CurrentPlayer + 1;
