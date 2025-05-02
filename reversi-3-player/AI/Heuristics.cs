@@ -5,27 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using reversi_3_player.Domain;
 
-namespace reversi_3_player
+namespace reversi_3_player.AI
 {
     /// <summary>
     /// Klasa statyczna zawierająca heurystyki używane przez AI oponentów
     /// </summary>
     public static class Heuristics
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="player"></param>
-        /// <returns></returns>
         public delegate double HeuristicFunc(GameState state, int player);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="player"></param>
-        /// <returns></returns>
         public static double PawnCount(GameState state, int player)
         {
             int playerPawnCount = 0;
@@ -33,7 +21,7 @@ namespace reversi_3_player
 
             for (int i = 0; i < Constants.N; i++)
             {
-                for (int j = 0; j < Constants.N; j++) 
+                for (int j = 0; j < Constants.N; j++)
                 {
                     if (state.Board[i, j] == player)
                     {
@@ -46,7 +34,7 @@ namespace reversi_3_player
                 }
             }
 
-            return 100 * ((double)(playerPawnCount - enemiesPawnCount) / (double)(playerPawnCount + enemiesPawnCount));
+            return 100 * ((playerPawnCount - enemiesPawnCount) / (double)(playerPawnCount + enemiesPawnCount));
         }
     }
 }

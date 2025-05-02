@@ -1,4 +1,6 @@
-﻿namespace reversi_3_player
+﻿using reversi_3_player.UI;
+
+namespace reversi_3_player
 {
     internal class Program
     {

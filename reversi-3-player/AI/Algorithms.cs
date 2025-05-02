@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using reversi_3_player.Domain;
 
-namespace reversi_3_player
+namespace reversi_3_player.AI
 {
     /// <summary>
     /// Klasa statyczna zawierająca algorytmy
@@ -42,7 +42,7 @@ namespace reversi_3_player
             // związany z tym zestawem wartości
             if (currentDepth == Constants.Depth)
             {
-                return (new Dictionary<int, double>() { {1, h(state, 1)}, {2, h(state, 2)}, {3, h(state, 3)} }, state);
+                return (new Dictionary<int, double>() { { 1, h(state, 1) }, { 2, h(state, 2) }, { 3, h(state, 3) } }, state);
             }
             else
             {
