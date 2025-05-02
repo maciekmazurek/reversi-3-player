@@ -23,5 +23,10 @@ namespace reversi_3_player
         /// Wartość określająca na ile poziomów w dół budowane jest drzewo gry przy każdym ruchu AI oponenta
         /// </remarks>
         public static readonly int Depth = 2;
+
+        public static readonly double weight_p = 0.33;
+        public static readonly double weight_m = 0.33;
+        public static readonly double weight_s = 0.33;
+
     }
 }

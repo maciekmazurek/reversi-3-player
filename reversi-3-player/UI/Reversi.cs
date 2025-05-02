@@ -19,7 +19,7 @@ namespace reversi_3_player
                 Console.WriteLine($"Tura {i}:");
                 i++;
                 currentGameState.Display();
-                currentGameState = Algorithms.MaxN(currentGameState, Heuristics.PawnCount);
+                currentGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
 
                 Console.ReadLine();
             }

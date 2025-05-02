@@ -108,6 +108,15 @@ namespace reversi_3_player
                 return 0;
         }
 
+        public static double Combined(GameState state, int player)
+        {
+            var Pawns = PawnCount(state, player);
+            var Mob = Mobility(state, player);
+            var Sta = Stability(state, player);
+
+            return Constants.weight_p * Pawns + Constants.weight_m * Mob + Constants.weight_s * Sta;
+        }
+
         public static int CountStability(GameState state, int player, (int, int) position)
         {
             int[] DirectionStability = new int[8];
@@ -167,7 +176,7 @@ namespace reversi_3_player
         {
             (int x, int y) = position;
             (int i, int j) = direction;
-            if (state.Board[x + i, y + j] != player)
+            if (CheckIfInSideBoard((x + i, y + j)) && state.Board[x + i, y + j] != player)
                 return false;
             x += 2 * i;
             y += 2 * j;
