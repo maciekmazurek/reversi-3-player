@@ -27,7 +27,7 @@ namespace reversi_3_player.AI
         public static GameState MaxN(GameState rootState, Heuristics.HeuristicFunc h)
         {
             rootState.BuildGameTree(0);
-            var (values, nextState) = MaxNRecursive(rootState, h, 0);
+            var (_, nextState) = MaxNRecursive(rootState, h, 0);
             rootState.ClearGameTree();
 
             return nextState;
@@ -40,7 +40,7 @@ namespace reversi_3_player.AI
         {
             // Jeżeli doszliśmy do stanu-liścia zwracamy wartości heurystyki obliczone dla wszystkich graczy i stan
             // związany z tym zestawem wartości
-            if (currentDepth == Constants.Depth)
+            if (currentDepth == Constants.Depth || state.Children.Count == 0)
             {
                 return (new Dictionary<int, double>() { { 1, h(state, 1) }, { 2, h(state, 2) }, { 3, h(state, 3) } }, state);
             }

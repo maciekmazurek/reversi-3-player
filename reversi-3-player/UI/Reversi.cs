@@ -16,15 +16,30 @@ namespace reversi_3_player.UI
         public void Run()
         {
             int i = 1;
-            while (true)
+            int playersWhoCanMove = 3;
+
+            while (playersWhoCanMove != 0) // Rozgrywkę kończymy gdy żaden z graczy nie może się ruszyć
             {
-                Console.WriteLine($"Tura {i}:");
-                i++;
+                Console.WriteLine($"Tura {i++}:");
                 currentGameState.Display();
-                currentGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
+                var nextGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
+
+                // Jeżeli CurrentPlayer w obecnym stanie rozgrywki nie może wykonać żadnego ruchu
+                if (nextGameState == currentGameState) 
+                {
+                    currentGameState.SkipTurn();
+                    playersWhoCanMove--;
+                }
+                else
+                {
+                    currentGameState = nextGameState;
+                    playersWhoCanMove = 3;
+                }
 
                 Console.ReadLine();
             }
+
+            Console.WriteLine("Koniec rozgrywki");
         }
     }
 }

@@ -15,7 +15,7 @@ namespace reversi_3_player.Domain
     {
         public int[,] Board { get; } = new int[Constants.N, Constants.N]; // Plansza w danym stanie rozgrywki
         public List<GameState> Children { get; } = new List<GameState>(); // Stany-dzieci, które są generowane z obecnego stanu
-        public int CurrentPlayer { get; } // Gracz, który wykonuje ruch w obecnym stanie
+        public int CurrentPlayer { get; private set; } // Gracz, który wykonuje ruch w obecnym stanie
         private List<(int, int)> PawnCoordinates; // Współrzędne wszystkich pionków gracza wykonującego ruch w obecnym stanie
 
         public GameState(int[,] board, int currentPlayer, List<(int, int)> pawnCoordinates)
@@ -69,10 +69,12 @@ namespace reversi_3_player.Domain
             }
             else
             {
-                GenerateChildren();
-                foreach (var child in Children)
+                if (GenerateChildren())
                 {
-                    child.BuildGameTree(currentDepth + 1);
+                    foreach (var child in Children)
+                    {
+                        child.BuildGameTree(currentDepth + 1);
+                    }
                 }
             }
         }
@@ -99,7 +101,10 @@ namespace reversi_3_player.Domain
         /// <summary>
         /// Generuje wszystkie stany-dzieci stanu obecnego
         /// </summary>
-        private void GenerateChildren()
+        /// <returns>
+        /// true jeżeli można wygenerować przynajmniej jedno dziecko, false w.p.p
+        /// </returns>
+        private bool GenerateChildren()
         {
             // Lista wszystkich kierunków, w których można dostawić pionka wykonując poprawny ruch
             List<(int, int)> directions = new List<(int, int)>()
@@ -132,12 +137,17 @@ namespace reversi_3_player.Domain
                 }
             }
 
+            bool IsAbleToPlacePawn = false;
+
             for (int i = 0; i < Constants.N; i++) 
             {
                 for (int j = 0; j < Constants.N; j++) 
                 {
                     if (pawnsPlaced[i, j] != null)
                     {
+                        // Oznaczamy, że z obecnego stanu da się wykonać jakiś ruch
+                        IsAbleToPlacePawn = true;
+
                         // Dodajemy pole, na którym dostawiliśmy pionek do listy pól zdobytych
                         pawnsPlaced[i, j].Add((i, j));
 
@@ -147,6 +157,8 @@ namespace reversi_3_player.Domain
                     }
                 }
             }
+
+            return IsAbleToPlacePawn;
         }
 
         private void TryPlacePawnInDirection((int x, int y) start, (int x, int y) direction, List<(int, int)>[,] pawnsPlaced)
@@ -276,16 +288,27 @@ namespace reversi_3_player.Domain
             return pawnCoords;
         }
 
+        private int DetermineNextPlayer()
+        {
+            return CurrentPlayer == 3 ? 1 : CurrentPlayer + 1;
+        }
+
         /// <summary>
         /// Generuje stan-dziecko obecnego stanu będące stanem rozgrywki po wykonaniu ruchu przez CurrentPlayera
         /// </summary>
         private void GenerateChild(List<(int, int)> takenFields)
         {
             int[,] newBoard = GenerateNewBoard(Board, takenFields, CurrentPlayer);
-            int nextPlayer = CurrentPlayer == 3 ? 1 : CurrentPlayer + 1;
+            int nextPlayer = DetermineNextPlayer();
             List<(int, int)> nextPlayerPawnCoords = GetPawnCoords(newBoard, nextPlayer);
 
             Children.Add(new GameState(newBoard, nextPlayer, nextPlayerPawnCoords));
+        }
+
+        public void SkipTurn()
+        {
+            CurrentPlayer = DetermineNextPlayer();
+            PawnCoordinates = GetPawnCoords(Board, CurrentPlayer);
         }
 
         /// <summary>
