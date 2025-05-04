@@ -27,6 +27,5 @@ namespace reversi_3_player
         public static readonly double weight_p = 0.33;
         public static readonly double weight_m = 0.33;
         public static readonly double weight_s = 0.33;
-
     }
 }

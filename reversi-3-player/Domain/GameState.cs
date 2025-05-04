@@ -18,6 +18,8 @@ namespace reversi_3_player.Domain
         public int CurrentPlayer { get; } // Gracz, który wykonuje ruch w obecnym stanie
         private List<(int, int)> PawnCoordinates; // Współrzędne wszystkich pionków gracza wykonującego ruch w obecnym stanie
 
+        //private bool WithPlayer = false; // Flaga sygnalizująca czy rozgrywka odbywa się z graczem czy nie
+
         public GameState(int[,] board, int currentPlayer, List<(int, int)> pawnCoordinates)
         {
             this.Board = board;
@@ -253,7 +255,12 @@ namespace reversi_3_player.Domain
         private void PlacePawn(List<(int, int)> takenFields)
         {
             int[,] newBoard = GenerateNewBoard(Board, takenFields, CurrentPlayer);
+
+            
             int nextPlayer = CurrentPlayer == 3 ? 1 : CurrentPlayer + 1;
+            //if (WithPlayer && nextPlayer == 1)
+            //    nextPlayer = 2;
+    
             List<(int, int)> nextPlayerPawnCoords = GetPawnCoords(newBoard, nextPlayer);
 
             Children.Add(new GameState(newBoard, nextPlayer, nextPlayerPawnCoords));
@@ -309,6 +316,83 @@ namespace reversi_3_player.Domain
                 ConsoleUtils.WriteColored("|", ConsoleColor.Black, boardBackgroundColor);
                 Console.WriteLine();
             }
+        }
+
+        /// <summary>
+        /// Próbuje położyć pion na danej pozycji według gracza
+        /// </summary>
+
+        public GameState? PlayerTryToPlacePawn((int x, int y) Position)
+        {
+            if (!IsInsideBoard(Position.x, Position.y) || CurrentPlayer != 1 || Board[Position.x, Position.y] != 0)
+                return null;
+
+            List<(int, int)> directions = new List<(int, int)>()
+            {
+                (0, -1), // lewo
+                (0, 1), // prawo
+                (-1, 0), // góra
+                (1, 0), // dół
+                (-1, -1), // lewo-góra
+                (-1, 1), // prawo-góra
+                (1, 1), // prawo-dół
+                (1, -1) // lewo-dół
+            };
+
+            var valid = new bool[8];
+            var endPos = new (int x, int y)[8];
+            int n = 0;
+            foreach(var direction in directions)
+            {
+                (valid[n], endPos[n]) = CheckDirection(Position, (direction.Item1, direction.Item2));
+                n++;
+            }
+
+            var takenFields = new List<(int x, int y)>() { Position };
+
+            for (int k = 0;k < n;k++)
+            {
+                if (valid[k])
+                {
+                    (int x, int y) = Position;
+                    (int i, int j) = directions.ElementAt(k);
+                    do
+                    {
+                        x += i;
+                        y += j;
+                        takenFields.Add((x, y));
+                    }
+                    while (x != endPos[k].x || y != endPos[k].y);
+                }
+            }
+
+            if (takenFields.Count == 1)
+                return null;
+
+            int[,] newBoard = GenerateNewBoard(Board, takenFields, CurrentPlayer);
+            int nextPlayer = 2;
+            List<(int, int)> nextPlayerPawnCoords = GetPawnCoords(newBoard, nextPlayer);
+
+            return new GameState(newBoard, nextPlayer, nextPlayerPawnCoords);
+        }
+
+        /// <summary>
+        /// Sprawdza czy z danego kierunku do danej pozycji można położyć pion gracza
+        /// </summary>
+        private (bool flag, (int, int) endPos) CheckDirection((int, int) Position, (int,int) Direction)
+        {
+            (int x, int y) = Position;
+            (int i, int j) = Direction;
+            x += i;
+            y += j;
+            while (IsInsideBoard(x, y) && Board[x, y] != 0)
+            {
+                if (Board[x, y] == CurrentPlayer)
+                    return (true, (x,y));
+                x += i;
+                y += j;
+            }
+            return (false , (-1, -1));
         }
     }
 }

@@ -21,6 +21,9 @@ namespace reversi_3_player
         /// <param name="h">
         /// Heurysytka, za pomocą której obliczamy wartość stanu dla danego gracza
         /// </param>
+        /// <param name="WithPlayer">
+        /// Flaga, która sygnalizuje czy rozgrywka odbywa się z graczem czy nie
+        /// </param>
         /// <returns>
         /// Stan, reprezentujący kolejny ruch 
         /// </returns>
@@ -42,12 +45,22 @@ namespace reversi_3_player
             // związany z tym zestawem wartości
             if (currentDepth == Constants.Depth)
             {
+                //if (WithPlayer)
+                //    return (new Dictionary<int, double>() { { 2, h(state, 2) }, { 3, h(state, 3) } }, state);
                 return (new Dictionary<int, double>() { {1, h(state, 1)}, {2, h(state, 2)}, {3, h(state, 3)} }, state);
             }
             else
             {
                 // Słownik mapujący gracza na jego wartość heurystyki przypisaną w obecnym stanie przez algorytm max^n
-                Dictionary<int, double> heuristicValues = new Dictionary<int, double>()
+                Dictionary<int, double> heuristicValues;
+                ////if (WithPlayer)
+                ////    heuristicValues = new Dictionary<int, double>()
+                ////    {
+                ////        {2, double.MinValue},
+                ////        {3, double.MinValue},
+                ////    };
+                //else
+                heuristicValues = new Dictionary<int, double>()
                 {
                     {1, double.MinValue},
                     {2, double.MinValue},

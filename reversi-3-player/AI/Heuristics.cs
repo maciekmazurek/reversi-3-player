@@ -52,6 +52,12 @@ namespace reversi_3_player
             return 100 * ((double)(playerPawnCount - enemiesPawnCount) / (double)(playerPawnCount + enemiesPawnCount));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <returns></returns>
         public static double Mobility(GameState state, int player)
         {
             int playerMovesCount = 0;
@@ -82,6 +88,12 @@ namespace reversi_3_player
                 return 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <returns></returns>
         public static double Stability(GameState state, int player)
         {
             int playerStability = 0;
@@ -108,6 +120,12 @@ namespace reversi_3_player
                 return 0;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <returns></returns>
         public static double Combined(GameState state, int player)
         {
             var Pawns = PawnCount(state, player);
@@ -117,6 +135,13 @@ namespace reversi_3_player
             return Constants.weight_p * Pawns + Constants.weight_m * Mob + Constants.weight_s * Sta;
         }
 
+        /// <summary>
+        /// Oblicza stabilność danego gracza na danej pozycji
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
         public static int CountStability(GameState state, int player, (int, int) position)
         {
             int[] DirectionStability = new int[8];
@@ -140,6 +165,14 @@ namespace reversi_3_player
             return 1;
         }
 
+        /// <summary>
+        /// Oblicza stabilność w danym kierunku
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <param name="position"></param>
+        /// <param name="direction"></param>
+        /// <returns></returns>
         public static int CheckStabilityDirection(GameState state, int player, (int, int) position, (int,int) direction)
         {
             (int x, int y) = position;
@@ -158,6 +191,14 @@ namespace reversi_3_player
             return -1;
         }
 
+        /// <summary>
+        /// Oblicza liczbę możliwych ruchów gracza z danej pozycji pionka
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <param name="position"></param>
+        /// <param name="counted"></param>
+        /// <returns></returns>
         public static int CountPossibleMoves(GameState state, int player, (int, int) position, int[][] counted)
         {
             int count = 0;
@@ -172,6 +213,15 @@ namespace reversi_3_player
             return count;
         }
 
+        /// <summary>
+        /// Sprawdza czy gracz może położyć pion w kierunku od danej pozycji
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <param name="position"></param>
+        /// <param name="direction"></param>
+        /// <param name="counted"></param>
+        /// <returns></returns>
         public static bool CheckIfPossibleDirection(GameState state, int player, (int,int) position, (int,int) direction, int[][] counted)
         {
             (int x, int y) = position;
@@ -194,6 +244,11 @@ namespace reversi_3_player
             return false;
         }
 
+        /// <summary>
+        /// Sprawdza czy pozycja jest na planszy czy nie
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
         public static bool CheckIfInSideBoard((int x, int y) position)
         {
             return position.x >= 0 && position.x < Constants.N && position.y >= 0 && position.y < Constants.N;
