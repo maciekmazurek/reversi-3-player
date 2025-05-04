@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using reversi_3_player.Domain;
 
-namespace reversi_3_player
+namespace reversi_3_player.AI
 {
     /// <summary>
     /// Klasa statyczna zawierająca algorytmy
@@ -30,7 +30,7 @@ namespace reversi_3_player
         public static GameState MaxN(GameState rootState, Heuristics.HeuristicFunc h)
         {
             rootState.BuildGameTree(0);
-            var (values, nextState) = MaxNRecursive(rootState, h, 0);
+            var (_, nextState) = MaxNRecursive(rootState, h, 0);
             rootState.ClearGameTree();
 
             return nextState;
@@ -43,11 +43,9 @@ namespace reversi_3_player
         {
             // Jeżeli doszliśmy do stanu-liścia zwracamy wartości heurystyki obliczone dla wszystkich graczy i stan
             // związany z tym zestawem wartości
-            if (currentDepth == Constants.Depth)
+            if (currentDepth == Constants.Depth || state.Children.Count == 0)
             {
-                //if (WithPlayer)
-                //    return (new Dictionary<int, double>() { { 2, h(state, 2) }, { 3, h(state, 3) } }, state);
-                return (new Dictionary<int, double>() { {1, h(state, 1)}, {2, h(state, 2)}, {3, h(state, 3)} }, state);
+                return (new Dictionary<int, double>() { { 1, h(state, 1) }, { 2, h(state, 2) }, { 3, h(state, 3) } }, state);
             }
             else
             {
