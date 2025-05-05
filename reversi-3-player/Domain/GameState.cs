@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using reversi_3_player.Utils;
@@ -391,7 +392,7 @@ namespace reversi_3_player.Domain
             int n = 0;
             foreach(var direction in directions)
             {
-                (valid[n], endPos[n]) = CheckDirection(Position, (direction.Item1, direction.Item2));
+                (valid[n], endPos[n]) = CheckFromDirection(Position, (direction.Item1, direction.Item2));
                 n++;
             }
 
@@ -426,10 +427,14 @@ namespace reversi_3_player.Domain
         /// <summary>
         /// Sprawdza czy z danego kierunku do danej pozycji można położyć pion gracza
         /// </summary>
-        private (bool flag, (int, int) endPos) CheckDirection((int, int) Position, (int,int) Direction)
+        private (bool flag, (int, int) endPos) CheckFromDirection((int, int) Position, (int,int) Direction)
         {
             (int x, int y) = Position;
             (int i, int j) = Direction;
+            x += i;
+            y += j;
+            if (IsInsideBoard(x, y) && (Board[x, y] == 0 || Board[x, y] == CurrentPlayer))
+                return (false, (-1, -1));
             x += i;
             y += j;
             while (IsInsideBoard(x, y) && Board[x, y] != 0)
@@ -440,6 +445,55 @@ namespace reversi_3_player.Domain
                 y += j;
             }
             return (false , (-1, -1));
+        }
+
+        /// <summary>
+        /// Sprawdza czy w danym kierunku z danej pozycji można położyć pion gracza
+        /// </summary>
+        private (bool flag, (int, int) endPos) CheckToDirection((int, int) Position, (int, int) Direction)
+        {
+            (int x, int y) = Position;
+            (int i, int j) = Direction;
+            x += i;
+            y += j;
+            while (IsInsideBoard(x, y) && Board[x, y] != CurrentPlayer)
+            {
+                if (Board[x, y] == 0)
+                    return (true, (x, y));
+                x += i;
+                y += j;
+            }
+            return (false, (-1, -1));
+        }
+
+        public bool CheckIfPlayerCanMove()
+        {
+            var Pawns = GetPawnCoords(Board, CurrentPlayer);
+            if (Pawns.Count == 0)
+                return false;
+
+            List<(int, int)> directions = new List<(int, int)>()
+            {
+                (0, -1), // lewo
+                (0, 1), // prawo
+                (-1, 0), // góra
+                (1, 0), // dół
+                (-1, -1), // lewo-góra
+                (-1, 1), // prawo-góra
+                (1, 1), // prawo-dół
+                (1, -1) // lewo-dół
+            };
+
+            foreach (var pawn in Pawns)
+            {
+                foreach(var direction in directions)
+                {
+                    if (CheckToDirection(pawn, direction).flag)
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }

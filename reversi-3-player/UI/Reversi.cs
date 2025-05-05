@@ -39,16 +39,19 @@ namespace reversi_3_player.UI
         {
             Console.WriteLine("You are playing blacks, to choose field type RC where R is row number and C is column number");
             int i = 1;
+            int playersWhoCanMove = 3;
             while (true)
             {
                 Console.WriteLine($"Tura {i}:");
                 
                 currentGameState.Display();
-                
-                if (currentGameState.CurrentPlayer == 1)
+
+                GameState? nextGameState = null;
+
+                if (currentGameState.CurrentPlayer == 1 && currentGameState.CheckIfPlayerCanMove())
                 {
-                    GameState? newState = null;
-                    while (newState == null)
+                    nextGameState = null;
+                    while (nextGameState == null)
                     {
                         var res = Console.ReadLine();
                         if (res.Length != 2)
@@ -58,19 +61,32 @@ namespace reversi_3_player.UI
                         }
                         int x = res[0] - '0';
                         int y = res[1] - '0';
-                        newState = currentGameState.PlayerTryToPlacePawn((x, y));
-                        if (newState == null)
+                        nextGameState = currentGameState.PlayerTryToPlacePawn((x, y));
+                        if (nextGameState == null)
                             Console.WriteLine("Invalid arguments\n");
                     }
 
-                    currentGameState = newState;
+                    currentGameState = nextGameState;
                 }
+                else if(currentGameState.CurrentPlayer == 1)
+                    currentGameState.SkipTurn();
                 else
                 {
-                    currentGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
+                    nextGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
+                    // Jeżeli CurrentPlayer w obecnym stanie rozgrywki nie może wykonać żadnego ruchu
+                    if (nextGameState == currentGameState)
+                    {
+                        currentGameState.SkipTurn();
+                        playersWhoCanMove--;
+                    }
+                    else
+                    {
+                        currentGameState = nextGameState;
+                        playersWhoCanMove = 3;
+                    }
+
                     Console.ReadLine();
                 }
-
                 i++;
             }
         }
