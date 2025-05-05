@@ -27,5 +27,20 @@ namespace reversi_3_player
         public static readonly double weight_p = 0.33;
         public static readonly double weight_m = 0.33;
         public static readonly double weight_s = 0.33;
+
+        public static string PickPlayer(int id)
+        {
+            switch (id)
+            {
+                case 1:
+                    return "Czarny";
+                case 2:
+                    return "Biały";
+                case 3:
+                    return "Czerwony";
+                default:
+                    return "";
+            }
+        }
     }
 }

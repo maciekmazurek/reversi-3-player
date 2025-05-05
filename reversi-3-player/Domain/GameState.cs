@@ -456,6 +456,10 @@ namespace reversi_3_player.Domain
             (int i, int j) = Direction;
             x += i;
             y += j;
+            if (IsInsideBoard(x, y) && (Board[x, y] == 0 || Board[x, y] == CurrentPlayer))
+                return (false, (-1, -1));
+            x += i;
+            y += j;
             while (IsInsideBoard(x, y) && Board[x, y] != CurrentPlayer)
             {
                 if (Board[x, y] == 0)
@@ -466,7 +470,7 @@ namespace reversi_3_player.Domain
             return (false, (-1, -1));
         }
 
-        public bool CheckIfPlayerCanMove()
+        public bool CheckIfCurrentPlayerCanMove()
         {
             var Pawns = GetPawnCoords(Board, CurrentPlayer);
             if (Pawns.Count == 0)
@@ -494,6 +498,43 @@ namespace reversi_3_player.Domain
             }
 
             return false;
+        }
+
+        public (int blacks, int whites, int reds) CountPlayersPawns()
+        {
+            (int blacks, int whites, int reds) = (0, 0, 0);
+            for (int i = 0;i < Constants.N;i++)
+            {
+                for (int j = 0; j < Constants.N; j++)
+                {
+                    switch(Board[i,j])
+                    {
+                        case 1:
+                            blacks++;
+                            break;
+                        case 2:
+                            whites++;
+                            break;
+                        case 3:
+                            reds++;
+                            break;
+                    }
+                }
+            }
+            return (blacks, whites, reds);
+        }
+
+        public (int, int) FindNextMove(GameState AfterState)
+        {
+            for (int i = 0; i < Constants.N; i++)
+            {
+                for (int j = 0; j < Constants.N; j++)
+                {
+                    if (Board[i, j] == 0 && AfterState.Board[i, j] == CurrentPlayer)
+                        return (i, j);
+                }
+            }
+            return (-1, -1);
         }
     }
 }

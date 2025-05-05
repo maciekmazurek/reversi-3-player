@@ -15,109 +15,116 @@ namespace reversi_3_player.UI
         // Główna pętla gry
         public void Run()
         {
-            Console.WriteLine("Choose how you want to play:\n" +
-                "1 - if you want to play with AI\n" +
-                "2 - if you want to see AI playing");
+            Console.WriteLine("Wybierz tryb rozgrywki:\n" +
+                "1 - jeżeli chcesz uczestniczyć w grze\n" +
+                "2 - jeżeli chcesz oglądać rozgrywkę między AI");
+            var res = Console.ReadLine();
+
+            GameState EndGameState;
+
+            bool flag;
+
             while (true)
             {
-                var res = Console.ReadLine();
-
                 if (res == "1")
-                {
-                    PlayertoAI();
-                    break;
-                }
-                else if(res == "2")
-                {
-                    AItoAI();
-                    break;
-                }
+                    flag = true;
+                else if (res == "2")
+                    flag = false;
+                else
+                    continue;
+                break;
             }
+
+            EndGameState = Play(flag);
+
+            (int blacks, int whites, int reds) = EndGameState.CountPlayersPawns();
+            if (blacks >= whites && blacks >= reds)
+                Console.WriteLine("Czarni wygrali");
+            if (whites >= blacks && whites >= reds)
+                Console.WriteLine("Biali wygrali");
+            if (reds >= whites && reds >= blacks)
+                Console.WriteLine("Czerwoni wygrali");
+
+            Console.WriteLine($"Czarni:{blacks} , Biali:{whites} , Czerwoni:{reds}");
+
+            Console.WriteLine("Koniec rozgrywki");
         }
 
-        public void PlayertoAI()
+        public GameState Play(bool IfHumanPlayer)
         {
-            Console.WriteLine("You are playing blacks, to choose field type RC where R is row number and C is column number");
+            if(IfHumanPlayer)
+                Console.WriteLine("Grasz czarnymi, żeby wybrać pole napisz wartość w typie RC gdzie R to numer wiersz a C to numer kolumny");
             int i = 1;
             int playersWhoCanMove = 3;
-            while (true)
+            int prevX = 0; int prevY = 0;
+            int prevPlayer = 1;
+
+            while (playersWhoCanMove > 0)
             {
-                Console.WriteLine($"Tura {i}:");
-                
+                Console.WriteLine($"Tura {i++}:");
+
+                if (i > 2)
+                {
+                    if (prevX > -1 && prevY > -1)
+                        Console.WriteLine($"Gracz {Constants.PickPlayer(prevPlayer)} położył piona na ({prevX},{prevY})");
+                    else
+                        Console.WriteLine($"Gracz {Constants.PickPlayer(prevPlayer)} musiał ominąć rundę");
+                }
+
                 currentGameState.Display();
+                prevPlayer = currentGameState.CurrentPlayer;
 
                 GameState? nextGameState = null;
 
-                if (currentGameState.CurrentPlayer == 1 && currentGameState.CheckIfPlayerCanMove())
-                {
-                    nextGameState = null;
-                    while (nextGameState == null)
-                    {
-                        var res = Console.ReadLine();
-                        if (res.Length != 2)
-                        {
-                            Console.WriteLine("Invalid arguments length\n");
-                            continue;
-                        }
-                        int x = res[0] - '0';
-                        int y = res[1] - '0';
-                        nextGameState = currentGameState.PlayerTryToPlacePawn((x, y));
-                        if (nextGameState == null)
-                            Console.WriteLine("Invalid arguments\n");
-                    }
-
-                    currentGameState = nextGameState;
-                }
-                else if(currentGameState.CurrentPlayer == 1)
-                    currentGameState.SkipTurn();
-                else
+                if (!IfHumanPlayer || currentGameState.CurrentPlayer != 1)
                 {
                     nextGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
+
                     // Jeżeli CurrentPlayer w obecnym stanie rozgrywki nie może wykonać żadnego ruchu
-                    if (nextGameState == currentGameState)
+                    if (currentGameState == nextGameState)
                     {
+                        prevX = prevY = -1;
                         currentGameState.SkipTurn();
                         playersWhoCanMove--;
                     }
                     else
                     {
+                        (prevX, prevY) = currentGameState.FindNextMove(nextGameState);
                         currentGameState = nextGameState;
                         playersWhoCanMove = 3;
                     }
 
                     Console.ReadLine();
                 }
-                i++;
-            }
-        }
-
-        public void AItoAI()
-        {
-            int i = 1;
-            int playersWhoCanMove = 3;
-
-            while (playersWhoCanMove != 0) // Rozgrywkę kończymy gdy żaden z graczy nie może się ruszyć
-            {
-                Console.WriteLine($"Tura {i++}:");
-                currentGameState.Display();
-                var nextGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
-
-                // Jeżeli CurrentPlayer w obecnym stanie rozgrywki nie może wykonać żadnego ruchu
-                if (nextGameState == currentGameState) 
+                else if (currentGameState.CurrentPlayer == 1 && currentGameState.CheckIfCurrentPlayerCanMove())
                 {
+                    nextGameState = null;
+                    while (nextGameState == null)
+                    {
+                        var res = Console.ReadLine();
+                        if (res == null || res.Length != 2)
+                        {
+                            Console.WriteLine("Błędna długość argumentu\n");
+                            continue;
+                        }
+                        prevX = res[0] - '0';
+                        prevY = res[1] - '0';
+                        nextGameState = currentGameState.PlayerTryToPlacePawn((prevX, prevY));
+                        if (nextGameState == null)
+                            Console.WriteLine("Błędny atgument\n");
+                    }
+                    playersWhoCanMove = 3;
+                    currentGameState = nextGameState;
+                }
+                else if (currentGameState.CurrentPlayer == 1)
+                {
+                    prevX = prevY = -1;
                     currentGameState.SkipTurn();
                     playersWhoCanMove--;
                 }
-                else
-                {
-                    currentGameState = nextGameState;
-                    playersWhoCanMove = 3;
-                }
-
-                Console.ReadLine();
             }
 
-            Console.WriteLine("Koniec rozgrywki");
+            return currentGameState;
         }
     }
 }
