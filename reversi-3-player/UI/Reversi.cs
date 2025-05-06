@@ -15,14 +15,10 @@ namespace reversi_3_player.UI
         // Główna pętla gry
         public void Run()
         {
-            Console.WriteLine("Wybierz tryb rozgrywki:\n" +
-                "1 - jeżeli chcesz uczestniczyć w grze\n" +
-                "2 - jeżeli chcesz oglądać rozgrywkę między AI");
-            var res = Console.ReadLine();
-
             GameState EndGameState;
-
             bool flag;
+
+            var res = PickGameModePrompt();
 
             while (true)
             {
@@ -31,7 +27,10 @@ namespace reversi_3_player.UI
                 else if (res == "2")
                     flag = false;
                 else
+                {
+                    res = PickGameModePrompt();
                     continue;
+                }
                 break;
             }
 
@@ -48,6 +47,14 @@ namespace reversi_3_player.UI
             Console.WriteLine($"Czarni:{blacks} , Biali:{whites} , Czerwoni:{reds}");
 
             Console.WriteLine("Koniec rozgrywki");
+        }
+
+        private string PickGameModePrompt()
+        {
+            Console.WriteLine("Wybierz tryb rozgrywki:\n" +
+                "1 - jeżeli chcesz uczestniczyć w grze\n" +
+                "2 - jeżeli chcesz oglądać rozgrywkę między AI");
+            return Console.ReadLine()!;
         }
 
         public GameState Play(bool IfHumanPlayer)
@@ -78,7 +85,7 @@ namespace reversi_3_player.UI
 
                 if (!IfHumanPlayer || currentGameState.CurrentPlayer != 1)
                 {
-                    nextGameState = Algorithms.MaxN(currentGameState, Heuristics.Combined);
+                    nextGameState = Algorithms.MaxN(currentGameState, Constants.heuristicFunc);
 
                     // Jeżeli CurrentPlayer w obecnym stanie rozgrywki nie może wykonać żadnego ruchu
                     if (currentGameState == nextGameState)
@@ -111,7 +118,7 @@ namespace reversi_3_player.UI
                         prevY = res[1] - '0';
                         nextGameState = currentGameState.PlayerTryToPlacePawn((prevX, prevY));
                         if (nextGameState == null)
-                            Console.WriteLine("Błędny atgument\n");
+                            Console.WriteLine("Błędny argument\n");
                     }
                     playersWhoCanMove = 3;
                     currentGameState = nextGameState;
