@@ -13,8 +13,19 @@ namespace reversi_3_player.AI
     /// <summary>
     /// Klasa statyczna zawierająca heurystyki używane przez AI oponentów
     /// </summary>
-    public static class Heuristics
+    public class Heuristics
     {
+        double wPawn = 0.33;
+        double wMob = 0.33;
+        double wStab = 0.33;
+
+        public Heuristics(double w1, double w2, double w3)
+        {
+            wPawn = w1;
+            wMob = w2;
+            wStab = w3;
+        }
+
         public delegate double HeuristicFunc(GameState state, int player);
 
         public static double PawnCount(GameState state, int player)
@@ -114,13 +125,14 @@ namespace reversi_3_player.AI
         /// <param name="state"></param>
         /// <param name="player"></param>
         /// <returns></returns>
-        public static double Combined(GameState state, int player)
+        public double Combined(GameState state, int player)
         {
             var Pawns = PawnCount(state, player);
             var Mob = Mobility(state, player);
             var Sta = Stability(state, player);
 
-            return Constants.weight_p * Pawns + Constants.weight_m * Mob + Constants.weight_s * Sta;
+            return wPawn * Pawns + wMob * Mob + wStab * Sta;
+            //return Constants.weight_p * Pawns + Constants.weight_m * Mob + Constants.weight_s * Sta;
         }
 
         /// <summary>

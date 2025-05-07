@@ -470,6 +470,10 @@ namespace reversi_3_player.Domain
             return (false, (-1, -1));
         }
 
+        /// <summary>
+        /// Sprawdza czy obecny gracz może wykonać ruch
+        /// </summary>
+        /// 
         public bool CheckIfCurrentPlayerCanMove()
         {
             var Pawns = GetPawnCoords(Board, CurrentPlayer);
@@ -500,6 +504,10 @@ namespace reversi_3_player.Domain
             return false;
         }
 
+        /// <summary>
+        /// Oblicza liczbę pionów wszystkich graczy
+        /// </summary>
+
         public (int blacks, int whites, int reds) CountPlayersPawns()
         {
             (int blacks, int whites, int reds) = (0, 0, 0);
@@ -523,6 +531,10 @@ namespace reversi_3_player.Domain
             }
             return (blacks, whites, reds);
         }
+
+        /// <summary>
+        /// Zwraca pole na którym gracz położył pion w poprzedniej turze
+        /// </summary>
 
         public (int, int) FindNextMove(GameState AfterState)
         {
