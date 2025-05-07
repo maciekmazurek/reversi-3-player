@@ -57,9 +57,13 @@ namespace reversi_3_player.UI
 
             if (DiffrentHeurestics)
                 PLayersHeurestics = new Heuristics.HeuristicFunc[3] {
+                    //(new Heuristics(0.8, 0.1, 0.1)).Combined,
+                    //(new Heuristics(0.1, 0.8, 0.1)).Combined,
+                    //(new Heuristics(0.1, 0.1, 0.8)).Combined 
                     (new Heuristics(1, 0, 0)).Combined,
                     (new Heuristics(0, 1, 0)).Combined,
-                    (new Heuristics(0, 0, 1)).Combined };
+                    (new Heuristics(0, 0, 1)).Combined
+                };
             else
                 PLayersHeurestics = new Heuristics.HeuristicFunc[3] { 
                     (new Heuristics(0.33, 0.33, 0.33)).Combined, 
@@ -125,7 +129,7 @@ namespace reversi_3_player.UI
 
                 if (!IfHumanPlayer || currentGameState.CurrentPlayer != 1)
                 {
-                    nextGameState = Algorithms.MaxN(currentGameState, PlayersHeurictics[currentGameState.CurrentPlayer - 1]);
+                    nextGameState = Algorithms.MaxN(currentGameState, PlayersHeurictics);
 
                     // Jeżeli CurrentPlayer w obecnym stanie rozgrywki nie może wykonać żadnego ruchu
                     if (currentGameState == nextGameState)

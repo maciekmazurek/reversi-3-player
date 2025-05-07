@@ -24,7 +24,7 @@ namespace reversi_3_player.AI
         /// <returns>
         /// Stan, reprezentujący kolejny ruch 
         /// </returns>
-        public static GameState MaxN(GameState rootState, Heuristics.HeuristicFunc h)
+        public static GameState MaxN(GameState rootState, Heuristics.HeuristicFunc[] h)
         {
             rootState.BuildGameTree(0);
             var (_, nextState) = MaxNRecursive(rootState, h, 0, double.MaxValue);
@@ -36,7 +36,7 @@ namespace reversi_3_player.AI
         /// <summary>
         /// Rekurencyjna metoda pomocnicza dla algorytmu max^n
         /// </summary>
-        private static (Dictionary<int, double>, GameState) MaxNRecursive(GameState state, Heuristics.HeuristicFunc h, int currentDepth, double lowerBound)
+        private static (Dictionary<int, double>, GameState) MaxNRecursive(GameState state, Heuristics.HeuristicFunc[] h, int currentDepth, double lowerBound)
         {
             // Jeżeli doszliśmy do stanu-liścia zwracamy wartości heurystyki obliczone dla wszystkich graczy i stan
             // związany z tym zestawem wartości
@@ -98,11 +98,11 @@ namespace reversi_3_player.AI
         /// Oblicza wartości heurystyk odpowiednio przeskalowując je tak, aby wykonywalny
         /// był shallow-pruning z ich wykorzystaniem
         /// </summary>
-        private static Dictionary<int, double> CalcHeuristicValsForPruning(GameState state, Heuristics.HeuristicFunc h)
+        private static Dictionary<int, double> CalcHeuristicValsForPruning(GameState state, Heuristics.HeuristicFunc[] h)
         {
             // Shiftujemy wartości tak, aby zawsze były nieujemne
             int shift = 100;
-            List<double> shiftedValues = new List<double> { h(state, 1) + shift, h(state, 2) + shift, h(state, 3) + shift };
+            List<double> shiftedValues = new List<double> { h[0](state, 1) + shift, h[1](state, 2) + shift, h[2](state, 3) + shift };
             
             // Normalizujemy wartości tak, aby ich łączna suma zawsze była stała
             double sum = shiftedValues.Sum();
