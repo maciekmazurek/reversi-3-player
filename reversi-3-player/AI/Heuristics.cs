@@ -11,7 +11,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace reversi_3_player.AI
 {
     /// <summary>
-    /// Klasa statyczna zawierająca heurystyki używane przez AI oponentów
+    /// Klasa zawierająca heurystyki używane przez AI oponentów
     /// </summary>
     public class Heuristics
     {

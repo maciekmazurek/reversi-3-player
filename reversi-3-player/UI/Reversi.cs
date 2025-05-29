@@ -23,7 +23,7 @@ namespace reversi_3_player.UI
 
             var res = PickGameModePrompt();
 
-            Heuristics.HeuristicFunc[] PLayersHeurestics;// = new Heuristics.HeuristicFunc[3];
+            Heuristics.HeuristicFunc[] PlayersHeuristics; // = new Heuristics.HeuristicFunc[3];
 
             while (true)
             {
@@ -56,21 +56,23 @@ namespace reversi_3_player.UI
             }
 
             if (DiffrentHeurestics)
-                PLayersHeurestics = new Heuristics.HeuristicFunc[3] {
-                    //(new Heuristics(0.8, 0.1, 0.1)).Combined,
-                    //(new Heuristics(0.1, 0.8, 0.1)).Combined,
-                    //(new Heuristics(0.1, 0.1, 0.8)).Combined 
-                    (new Heuristics(1, 0, 0)).Combined,
-                    (new Heuristics(0, 1, 0)).Combined,
-                    (new Heuristics(0, 0, 1)).Combined
+            {
+                PlayersHeuristics = new Heuristics.HeuristicFunc[3] {
+                    (new Heuristics(0.8, 0.1, 0.1)).Combined,
+                    (new Heuristics(0.1, 0.8, 0.1)).Combined,
+                    (new Heuristics(0.1, 0.1, 0.8)).Combined,
                 };
+            }
             else
-                PLayersHeurestics = new Heuristics.HeuristicFunc[3] { 
-                    (new Heuristics(0.33, 0.33, 0.33)).Combined, 
-                    (new Heuristics(0.33, 0.33, 0.33)).Combined, 
-                    (new Heuristics(0.33, 0.33, 0.33)).Combined };
+            {
+                PlayersHeuristics = new Heuristics.HeuristicFunc[3] {
+                    (new Heuristics(0.33, 0.33, 0.33)).Combined,
+                    (new Heuristics(0.33, 0.33, 0.33)).Combined,
+                    (new Heuristics(0.33, 0.33, 0.33)).Combined,
+                };
+            }
 
-            EndGameState = Play(HumanPlayer, PLayersHeurestics, OnlyResult);
+            EndGameState = Play(HumanPlayer, PlayersHeuristics, OnlyResult);
 
             if (OnlyResult)
                 EndGameState.Display();
@@ -98,6 +100,82 @@ namespace reversi_3_player.UI
             return Console.ReadLine()!;
         }
 
+        public void RunAnalysys()
+        {
+            List<Heuristics.HeuristicFunc> heuristics = new List<Heuristics.HeuristicFunc>() { Heuristics.PawnCount, Heuristics.Mobility, Heuristics.Stability };
+            Dictionary<Heuristics.HeuristicFunc, string> heuristicName = new Dictionary<Heuristics.HeuristicFunc, string>()
+            {
+                { Heuristics.PawnCount, "PawnCount" },
+                { Heuristics.Stability, "Stability" },
+                { Heuristics.Mobility, "Mobility" },
+            };
+            Dictionary<Heuristics.HeuristicFunc, int> pawnsCaptured = new Dictionary<Heuristics.HeuristicFunc, int>()
+            {
+                { Heuristics.PawnCount, 0 },
+                { Heuristics.Mobility, 0 },
+                { Heuristics.Stability, 0 },
+            };
+            Dictionary<Heuristics.HeuristicFunc, int> pawnsLost = new Dictionary<Heuristics.HeuristicFunc, int>()
+            {
+                { Heuristics.PawnCount, 0 },
+                { Heuristics.Mobility, 0 },
+                { Heuristics.Stability, 0 },
+            };
+            Dictionary<Heuristics.HeuristicFunc, int> totalWins = new Dictionary<Heuristics.HeuristicFunc, int>()
+            {
+                { Heuristics.PawnCount, 0 },
+                { Heuristics.Mobility, 0 },
+                { Heuristics.Stability, 0 },
+            };
+
+            foreach (var player1Heuristics in heuristics)
+            {
+                foreach (var player2Heuristics in heuristics)
+                {
+                    foreach (var player3Heuristics in heuristics)
+                    {
+                        var playersHeuristics = new Heuristics.HeuristicFunc[3]
+                        {
+                            player1Heuristics,
+                            player2Heuristics,
+                            player3Heuristics,
+                        };
+
+                        var EndGameState = Play(false, playersHeuristics, true);
+
+                        (int blacks, int whites, int reds) = EndGameState.CountPlayersPawns();
+
+                        pawnsCaptured[player1Heuristics] += blacks;
+                        pawnsCaptured[player2Heuristics] += whites;
+                        pawnsCaptured[player3Heuristics] += reds;
+
+                        pawnsLost[player1Heuristics] += whites + reds;
+                        pawnsLost[player2Heuristics] += blacks + reds;
+                        pawnsLost[player3Heuristics] += blacks + whites;
+
+                        if (blacks >= whites && blacks >= reds)
+                            totalWins[player1Heuristics]++;
+                        if (whites >= blacks && whites >= reds)
+                            totalWins[player2Heuristics]++;
+                        if (reds >= whites && reds >= blacks)
+                            totalWins[player3Heuristics]++;
+
+                        Console.WriteLine($"({heuristicName[player1Heuristics]}, {heuristicName[player2Heuristics]}, {heuristicName[player3Heuristics]}) = ({blacks}, {whites}, {reds})");
+                        currentGameState = GameState.GenerateStart();
+                    }
+                }
+            }
+
+            foreach (var h in heuristics)
+            {
+                Console.WriteLine($"Pawn's balance of {heuristicName[h]}: total {pawnsCaptured[h]} captured, total {pawnsLost[h]} lost");
+            }
+            foreach (var h in heuristics)
+            {
+                Console.WriteLine($"Total number of {heuristicName[h]} wins: {totalWins[h]}");
+            }
+        }
+
         public GameState Play(bool IfHumanPlayer, Heuristics.HeuristicFunc[] PlayersHeurictics, bool OnlyResult)
         {
             if(IfHumanPlayer)
@@ -118,7 +196,7 @@ namespace reversi_3_player.UI
                         if (prevX > -1 && prevY > -1)
                             Console.WriteLine($"Gracz {Constants.PickPlayer(prevPlayer)} położył piona na ({prevX},{prevY})");
                         else
-                            Console.WriteLine($"Gracz {Constants.PickPlayer(prevPlayer)} musiał ominąć rundę");
+                            Console.WriteLine($"Gracz {Constants.PickPlayer(prevPlayer)} musiał ominąć turę");
                     }
 
                     currentGameState.Display();
