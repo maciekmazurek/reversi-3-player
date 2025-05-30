@@ -1,4 +1,4 @@
-﻿//#define ANALYSYS_MODE
+﻿#define ANALYSYS_MODE
 
 using reversi_3_player.UI;
 

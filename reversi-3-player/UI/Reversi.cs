@@ -58,9 +58,9 @@ namespace reversi_3_player.UI
             if (DiffrentHeurestics)
             {
                 PlayersHeuristics = new Heuristics.HeuristicFunc[3] {
-                    (new Heuristics(0.8, 0.1, 0.1)).Combined,
-                    (new Heuristics(0.1, 0.8, 0.1)).Combined,
-                    (new Heuristics(0.1, 0.1, 0.8)).Combined,
+                    (new Heuristics(1, 0, 0)).Combined,
+                    (new Heuristics(0, 1, 0)).Combined,
+                    (new Heuristics(0, 0, 1)).Combined,
                 };
             }
             else
@@ -128,6 +128,16 @@ namespace reversi_3_player.UI
                 { Heuristics.Stability, 0 },
             };
 
+            Dictionary<int, string> playersColors = new Dictionary<int, string>()
+            {
+                { 0, "Black" },
+                { 1, "White" },
+                { 2, "Red" },
+            };
+
+            var playersWins = new int[3] { 0, 0, 0 };
+            var playersCapturedPawns = new int[3] { 0, 0, 0 };
+
             foreach (var player1Heuristics in heuristics)
             {
                 foreach (var player2Heuristics in heuristics)
@@ -149,16 +159,29 @@ namespace reversi_3_player.UI
                         pawnsCaptured[player2Heuristics] += whites;
                         pawnsCaptured[player3Heuristics] += reds;
 
+                        playersCapturedPawns[0] += blacks;
+                        playersCapturedPawns[1] += whites;
+                        playersCapturedPawns[2] += reds;
+
                         pawnsLost[player1Heuristics] += whites + reds;
                         pawnsLost[player2Heuristics] += blacks + reds;
                         pawnsLost[player3Heuristics] += blacks + whites;
 
                         if (blacks >= whites && blacks >= reds)
+                        {
+                            playersWins[0]++;
                             totalWins[player1Heuristics]++;
+                        }
                         if (whites >= blacks && whites >= reds)
+                        {
+                            playersWins[1]++;
                             totalWins[player2Heuristics]++;
+                        }
                         if (reds >= whites && reds >= blacks)
+                        {
+                            playersWins[2]++;
                             totalWins[player3Heuristics]++;
+                        }
 
                         Console.WriteLine($"({heuristicName[player1Heuristics]}, {heuristicName[player2Heuristics]}, {heuristicName[player3Heuristics]}) = ({blacks}, {whites}, {reds})");
                         currentGameState = GameState.GenerateStart();
@@ -174,6 +197,9 @@ namespace reversi_3_player.UI
             {
                 Console.WriteLine($"Total number of {heuristicName[h]} wins: {totalWins[h]}");
             }
+
+            for (int i = 0; i < 3; i++)
+                Console.WriteLine($"Total number of {playersColors[i]} player wins: {playersWins[i]}, and total captured pawns {playersCapturedPawns[i]}");
         }
 
         public GameState Play(bool IfHumanPlayer, Heuristics.HeuristicFunc[] PlayersHeurictics, bool OnlyResult)
