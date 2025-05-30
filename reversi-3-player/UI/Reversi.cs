@@ -57,10 +57,15 @@ namespace reversi_3_player.UI
 
             if (DiffrentHeurestics)
             {
+                //PlayersHeuristics = new Heuristics.HeuristicFunc[3] {
+                //    (new Heuristics(1, 0, 0)).Combined,
+                //    (new Heuristics(0, 1, 0)).Combined,
+                //    (new Heuristics(0, 0, 1)).Combined,
+                //};
                 PlayersHeuristics = new Heuristics.HeuristicFunc[3] {
-                    (new Heuristics(1, 0, 0)).Combined,
-                    (new Heuristics(0, 1, 0)).Combined,
-                    (new Heuristics(0, 0, 1)).Combined,
+                    Heuristics.PawnCount,
+                    Heuristics.PawnCount,
+                    Heuristics.PawnCount,
                 };
             }
             else

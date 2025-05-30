@@ -150,17 +150,24 @@ namespace reversi_3_player.AI
             {
                 for (int j = -1; j < 2; j++)
                 {
+                    if (i == 0 && j == 0)
+                        continue; // pomijamy kierunki ukośne
                     DirectionStability[n] = CheckStabilityDirection(state, player, position, (i, j));
-                    if(n > 3)
-                        if (DirectionStability[n] == -1 && DirectionStability[7 - n] == 0)
+                    if (n > 3)
+                        if ((DirectionStability[n] == -1 && DirectionStability[7 - n] == 0) || DirectionStability[n] == 0 && DirectionStability[7 - n] == -1)
+                        {
+                            //Console.WriteLine(-1);
                             return -1;
-                    if (i != 0 && j != 0)
-                        n++;
+                        }
+                    n++;
                 }
             }
             for (int i = 0; i < 4; i++)
-                if (DirectionStability[n] == 0 && DirectionStability[7 - n] == 0)
+                if (DirectionStability[i] == 0 && DirectionStability[7 - i] == 0)
+                {
+                    //Console.WriteLine(0);
                     return 0;
+                }
 
             return 1;
         }
@@ -173,13 +180,12 @@ namespace reversi_3_player.AI
         /// <param name="position"></param>
         /// <param name="direction"></param>
         /// <returns></returns>
-        public static int CheckStabilityDirection(GameState state, int player, (int, int) position, (int,int) direction)
+        public static int CheckStabilityDirection(GameState state, int player, (int, int) position, (int, int) direction)
         {
             (int x, int y) = position;
             (int i, int j) = direction;
-            x += i;
-            y += j;
-            while (CheckIfInSideBoard((x, y)) && state.Board[x, y] != player)
+
+            while (CheckIfInSideBoard((x, y)) && state.Board[x, y] == player)
             {
                 x += i;
                 y += j;
