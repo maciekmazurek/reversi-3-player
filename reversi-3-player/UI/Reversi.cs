@@ -64,8 +64,8 @@ namespace reversi_3_player.UI
                 //};
                 PlayersHeuristics = new Heuristics.HeuristicFunc[3] {
                     Heuristics.PawnCount,
-                    Heuristics.PawnCount,
-                    Heuristics.PawnCount,
+                    Heuristics.Mobility,
+                    Heuristics.Stability,
                 };
             }
             else
