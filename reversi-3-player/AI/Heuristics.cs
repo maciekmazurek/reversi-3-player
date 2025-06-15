@@ -98,7 +98,155 @@ namespace reversi_3_player.AI
         /// <param name="state"></param>
         /// <param name="player"></param>
         /// <returns></returns>
+        /// 
+
         public static double Stability(GameState state, int player)
+        {
+            return StabilityMain2(state, player);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public double Combined(GameState state, int player)
+        {
+            var Pawns = PawnCount(state, player);
+            var Mob = Mobility(state, player);
+            var Sta = Stability(state, player);
+
+            return wPawn * Pawns + wMob * Mob + wStab * Sta;
+            //return Constants.weight_p * Pawns + Constants.weight_m * Mob + Constants.weight_s * Sta;
+        }
+
+        /// <summary>
+        /// Oblicza stabilność danego gracza na danej pozycji
+        /// </summary>
+        /// <param name="state"></param>
+        /// <param name="player"></param>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        /// 
+
+        public static double StabilityMain2(GameState state, int player)
+        {
+            int n = Constants.N;
+            int playerStability = 0;
+            int enemiesStability = 0;
+
+            var pawnsStability = new int[n][];
+
+            for (int i = 0; i < n; i++)
+            {
+                pawnsStability[i] = new int[n];
+                for (int j = 0; j < n; j++)
+                    pawnsStability[i][j] = -2;
+            }
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    if (state.Board[i, j] == player)
+                    {
+                        var res = CountStabilityVer3(state, player, (i, j));
+                        playerStability += res;
+                    }
+                    else if (state.Board[i, j] != 0)
+                    {
+                        var res = CountStabilityVer3(state, state.Board[i, j], (i, j));
+                        enemiesStability += res;
+                    }
+                }
+            }
+
+            //if (positivStab > 4)
+            //{
+            //    Console.WriteLine($"{positivStab}");
+            //    Console.WriteLine("\n" + player + " " + playerStability + "\n");
+            //    state.Display();
+            //}
+
+            //Console.WriteLine("\n" + player + " " + playerStability + "\n");
+
+
+
+            if (playerStability + enemiesStability != 0)
+                return 100 * ((double)(playerStability - enemiesStability) / (double)(playerStability + enemiesStability));
+            else
+                return 0;
+        }
+
+        public static int CountStabilityVer3(GameState state, int player, (int, int) position)
+        {
+            (int dx, int dy)[] Directions = new (int, int)[]
+            {
+                (-1, -1), (-1, 0), (-1, 1),
+                ( 0, -1),          ( 0, 1),
+                ( 1, -1), ( 1, 0), ( 1, 1)
+            };
+
+            (int x, int y) = position;
+
+            if (!CheckIfInSideBoard((x, y)) || state.Board[x, y] != player)
+                return -1;
+
+            bool canBeTakenNextMove = false;
+            bool canBeTakenLater = false;
+
+            foreach (var (dx, dy) in Directions)
+            {
+                int i = x + dx;
+                int j = y + dy;
+
+                // Czy w tym kierunku da się odwrócić piona?
+                bool foundOpponent = false;
+                bool foundEmpty = false;
+
+                while (CheckIfInSideBoard((i, j)))
+                {
+                    int cell = state.Board[i, j];
+
+                    if (cell == 0)
+                    {
+                        foundEmpty = true;
+                        break; // możliwy ruch przeciwnika
+                    }
+
+                    if (cell != player)
+                    {
+                        foundOpponent = true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                    i += dx;
+                    j += dy;
+                }
+
+                if (foundEmpty && foundOpponent)
+                {
+                    // Jest pusta przestrzeń + przeciwnik – możliwy ruch
+                    // Tu uproszczona heurystyka: traktujemy jako zagrożenie w najbliższym ruchu
+                    canBeTakenNextMove = true;
+                }
+                else if (foundOpponent)
+                {
+                    canBeTakenLater = true; // może być odwrócony później
+                }
+            }
+
+            if (canBeTakenNextMove)
+                return -1;
+            if (canBeTakenLater)
+                return 0;
+            return 1;
+        }
+
+        public static double StabilityMain1(GameState state, int player)
         {
             int n = Constants.N;
             int playerStability = 0;
@@ -142,10 +290,12 @@ namespace reversi_3_player.AI
                     {
                         if (state.Board[i, j] == player)
                         {
+                            //playerStability += pawnsStability[i][j];
                             playerStability += pawnsStability[i][j];
                         }
                         else if (state.Board[i, j] != 0)
                         {
+                            //enemiesStability += pawnsStability[i][j];
                             enemiesStability += pawnsStability[i][j];
                         }
                     }
@@ -169,29 +319,6 @@ namespace reversi_3_player.AI
                 return 0;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="player"></param>
-        /// <returns></returns>
-        public double Combined(GameState state, int player)
-        {
-            var Pawns = PawnCount(state, player);
-            var Mob = Mobility(state, player);
-            var Sta = Stability(state, player);
-
-            return wPawn * Pawns + wMob * Mob + wStab * Sta;
-            //return Constants.weight_p * Pawns + Constants.weight_m * Mob + Constants.weight_s * Sta;
-        }
-
-        /// <summary>
-        /// Oblicza stabilność danego gracza na danej pozycji
-        /// </summary>
-        /// <param name="state"></param>
-        /// <param name="player"></param>
-        /// <param name="position"></param>
-        /// <returns></returns>
 
         public static int CountStability2(GameState state, int player, (int, int) position, int[][] pawnsStability)
         {
