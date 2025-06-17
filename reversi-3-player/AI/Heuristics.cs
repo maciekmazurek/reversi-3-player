@@ -102,7 +102,7 @@ namespace reversi_3_player.AI
 
         public static double Stability(GameState state, int player)
         {
-            return StabilityMain2(state, player);
+            return StabilityMain1(state, player);
         }
 
         /// <summary>

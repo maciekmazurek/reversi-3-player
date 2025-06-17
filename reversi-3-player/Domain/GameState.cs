@@ -369,7 +369,6 @@ namespace reversi_3_player.Domain
         /// <summary>
         /// Próbuje położyć pion na danej pozycji według gracza
         /// </summary>
-
         public GameState? PlayerTryToPlacePawn((int x, int y) Position)
         {
             if (!IsInsideBoard(Position.x, Position.y) || CurrentPlayer != 1 || Board[Position.x, Position.y] != 0)
@@ -507,7 +506,6 @@ namespace reversi_3_player.Domain
         /// <summary>
         /// Oblicza liczbę pionów wszystkich graczy
         /// </summary>
-
         public (int blacks, int whites, int reds) CountPlayersPawns()
         {
             (int blacks, int whites, int reds) = (0, 0, 0);
@@ -535,7 +533,6 @@ namespace reversi_3_player.Domain
         /// <summary>
         /// Zwraca pole na którym gracz położył pion w poprzedniej turze
         /// </summary>
-
         public (int, int) FindNextMove(GameState AfterState)
         {
             for (int i = 0; i < Constants.N; i++)
